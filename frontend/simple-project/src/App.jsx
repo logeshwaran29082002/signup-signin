@@ -1,35 +1,106 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: ""
+  });
+
+  const [message, setMessage] = useState("");
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("http://localhost:3000/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage("Signup Successful!");
+        setFormData({ firstName: "", lastName: "", email: "", password: "" });
+      } else {
+        setMessage(data.message || "Signup failed");
+      }
+    } catch (error) {
+      setMessage("Error connecting to server");
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="wrapper">
+      <div className="form-card">
+        <h2>Create an Account</h2>
 
-export default App
+        <form onSubmit={handleSubmit}>
+
+          <div className="field">
+            <input
+              type="text"
+              name="firstName"
+              required
+              value={formData.firstName}
+              onChange={handleChange}
+            />
+            <label>First Name</label>
+          </div>
+
+          <div className="field">
+            <input
+              type="text"
+              name="lastName"
+              required
+              value={formData.lastName}
+              onChange={handleChange}
+            />
+            <label>Last Name</label>
+          </div>
+
+          <div className="field">
+            <input
+              type="email"
+              name="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+            />
+            <label>Email</label>
+          </div>
+
+          <div className="field">
+            <input
+              type="password"
+              name="password"
+              required
+              value={formData.password}
+              onChange={handleChange}
+            />
+            <label>Password</label>
+          </div>
+
+          <button type="submit" className="submit-btn">
+            Sign Up
+          </button>
+        </form>
+
+        {message && <p className="success">{message}</p>}
+      </div>
+    </div>
+  );
+};
+
+export default App;
